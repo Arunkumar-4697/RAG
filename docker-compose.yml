@@ -1,0 +1,48 @@
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - VITE_BACKEND_URL=http://localhost:${BACKEND_PORT:-8000}
+    restart: always
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        - HF_TOKEN=${HF_TOKEN}
+        - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+        - RERANKER_MODEL=${RERANKER_MODEL}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - QDRANT_HOST=${QDRANT_HOST:-qdrant}
+      - QDRANT_PORT=${QDRANT_PORT:-6333}
+      - HF_TOKEN=${HF_TOKEN}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - APP_KEY=${APP_KEY}
+      - QDRANT_COLLECTION_NAME=${QDRANT_COLLECTION_NAME}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - RERANKER_MODEL=${RERANKER_MODEL}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+    depends_on:
+      - qdrant
+    restart: always
+    volumes:
+      - ./backend:/app
+      - ./storage:/storage
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - ./database/qdrant_data:/qdrant/storage
+    restart: always
