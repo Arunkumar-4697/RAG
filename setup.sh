@@ -23,12 +23,6 @@ then
     exit 1
 fi
 
-if ! command -v node &> /dev/null
-then
-    echo "Node could not be found. Please install it."
-    exit 1
-fi
-
 if [ ! -f .env ]; then
     echo "Creating .env from .env.example..."
     cp .env.example .env

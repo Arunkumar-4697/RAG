@@ -2,3 +2,8 @@ fastapi
 uvicorn
 qdrant-client
 httpx
+python-multipart
+PyMuPDF
+sentence-transformers
+nltk
+openai

@@ -1,57 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import HomePage from './pages/HomePage/HomePage';
+import { checkHealth } from './redux/slices/healthSlice';
+import { fetchFolders } from './redux/slices/folderSlice';
 
 function App() {
-  const [healthResult, setHealthResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const darkMode = useSelector(state => state.settings.darkMode);
 
-  const checkHealth = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-      const response = await fetch(`${backendUrl}/health`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      setHealthResult(data);
-    } catch (err) {
-      console.error("Health check failed:", err);
-      setError("Failed to reach backend.");
-      setHealthResult(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    dispatch(checkHealth());
+    dispatch(fetchFolders());
+  }, [dispatch]);
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>Chat With Your Docs</h1>
-      
-      <button 
-        onClick={checkHealth}
-        disabled={loading}
-        style={{ padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer' }}
-      >
-        {loading ? 'Checking...' : 'Check Health'}
-      </button>
-
-      <div style={{ marginTop: '2rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
-        {error && (
-          <div style={{ color: 'red' }}>
-            <p>Backend : Unreachable</p>
-            <p>Qdrant : Unknown</p>
-          </div>
-        )}
-        
-        {healthResult && (
-          <div>
-            <p>Backend : {healthResult.backend ? 'Healthy' : 'Unhealthy'}</p>
-            <p>Qdrant : {healthResult.qdrant ? 'Healthy' : 'Unreachable'}</p>
-          </div>
-        )}
-      </div>
+    <div className={`h-screen flex w-full font-sans antialiased transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+      <HomePage />
     </div>
   );
 }
